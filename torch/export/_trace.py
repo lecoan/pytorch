@@ -8,6 +8,7 @@ import re
 import sys
 import time
 import warnings
+from copy import deepcopy
 from contextlib import contextmanager, nullcontext
 from typing import Any, Callable, Optional, Union
 
@@ -809,8 +810,8 @@ def _export_to_torch_ir(
                     _log_export_usage=_log_export_usage,
                     same_signature=same_signature,
                 )(
-                    *args,
-                    **kwargs,
+                    *deepcopy(args),
+                    **deepcopy(kwargs),
                 )
         except (ConstraintViolationError, ValueRangeError) as e:
             raise UserError(UserErrorType.CONSTRAINT_VIOLATION, str(e))  # noqa: B904

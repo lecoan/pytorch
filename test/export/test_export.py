@@ -1354,6 +1354,18 @@ graph():
         M()(torch.randn(7))
         torch.export.export(M(), (torch.randn(7),), strict=strict)
 
+    def test_mutable_input(self):
+        class M(torch.nn.Module):
+            def forward(self, inp):
+                inp['c'] = inp['a'] + inp['b']
+                return inp['a'] * inp['b'] + inp['c']
+
+        inp = {'a': torch.rand(5), 'b': torch.rand(5)}
+        m = M()
+        ep_res = export(m, (inp, )).module()(inp)
+        orig_res = m(inp)
+        self.assertEqual(orig_res, ep_res)
+
     def test_cond_branches_return_constant_int(self):
         class M(torch.nn.Module):
             def forward(self, x):
